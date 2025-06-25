@@ -14,7 +14,7 @@ For a fun overview, look at these [slides](docs/Writing%20A%20SQL%20Agent.pdf)!
 
 - [uv](https://docs.astral.sh/uv/) - Python package manager
 - An [OpenRouter](https://openrouter.ai/) API key
-- Advertising data in CSV format (`ads.csv`)
+- Advertising data in CSV format (`ads.csv`) [Found here](https://data.mendeley.com/datasets/wrvjmdtjd9/1)
 
 ## Setup
 
