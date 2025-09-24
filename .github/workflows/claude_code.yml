@@ -52,3 +52,4 @@ jobs:
         with:
           title: ${{ steps.title.outputs.content }}
           body: ${{ steps.body.outputs.content }}
+          branch-suffix: timestamp
