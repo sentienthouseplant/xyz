@@ -27,8 +27,10 @@ jobs:
 
             Use pytest where possible.
 
+            Please just create a single test since I am just running a proof of concept.
+
           claude_args: |
-            --allowedTools "Read,Write,Edit"
+            --allowedTools "Read,Write,Edit,python"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
