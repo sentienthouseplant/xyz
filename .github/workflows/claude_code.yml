@@ -36,9 +36,14 @@ jobs:
             --allowedTools "Read,Write,Edit,python"
 
       - name: get pr title and body
+        id: get_pr_title_and_body
         run: |
-          echo "title=$(cat title.txt)" >> $GITHUB_OUTPUT
-          echo "body=$(cat body.txt)" >> $GITHUB_OUTPUT
+          echo "title<<EOF" >> $GITHUB_OUTPUT
+          cat title.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat body.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           rm title.txt body.txt
 
       - name: Create Pull Request
