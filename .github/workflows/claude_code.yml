@@ -1,0 +1,34 @@
+name: Weekly Unit Tests
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Every Sunday at midnight
+  workflow_dispatch: # Manual trigger option
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+
+            Your job is to write unit tests for the repository.
+
+            Use pytest where possible.
+
+          claude_args: |
+            --allowedTools "Read,Write,Edit"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
