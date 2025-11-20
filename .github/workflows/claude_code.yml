@@ -1,58 +1,23 @@
-name: Weekly Unit Tests
+name: Claude Code
+
 on:
-  schedule:
-    - cron: "0 0 * * 0" # Every Sunday at midnight
-  workflow_dispatch: # Manual trigger option
+  pull_request_review_comment:
+    types: [created]
 
 jobs:
-  maintenance:
+  claude:
+    if: (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      issues: write
       pull-requests: write
-      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            REPO: ${{ github.repository }}
-
-            Your job is to write unit tests for the repository.
-
-            Use pytest where possible.
-
-            Please just create a single test since I am just running a proof of concept.
-
-            Write the PR title to `title.txt`
-            Write the PR body to `body.txt`
-
-          claude_args: |
-            --allowedTools "Read,Write,Edit,python"
-
-      - name: Read PR title and body
-        id: pr_content
-        run: |
-          {
-            echo 'title<<EOF'
-            cat title.txt
-            echo
-            echo 'EOF'
-            echo 'body<<EOF'
-            cat body.txt
-            echo
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-          rm title.txt body.txt
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          title: ${{ steps.pr_content.outputs.title }}
-          body: ${{ steps.pr_content.outputs.body }}
-          branch-suffix: timestamp
