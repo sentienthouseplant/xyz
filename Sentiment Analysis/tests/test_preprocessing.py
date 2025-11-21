@@ -379,3 +379,46 @@ class TestTextPreprocessor:
         """Test behavior with numeric input."""
         with pytest.raises((TypeError, AttributeError)):
             preprocessor.tokenize(12345)
+
+    # ==================== ADDITIONAL EDGE CASES ====================
+
+    def test_clean_text_with_leading_trailing_punctuation(self, preprocessor):
+        """Test text with leading and trailing punctuation marks."""
+        text = "...Hello World!!!"
+        result = preprocessor.clean_text(text)
+        assert result == "hello world"
+
+    def test_clean_text_with_consecutive_punctuation(self, preprocessor):
+        """Test handling of consecutive punctuation marks."""
+        text = "Wait!!!??? Really!?!?!"
+        result = preprocessor.clean_text(text)
+        assert result == "wait really"
+
+    def test_clean_text_removes_html_tags(self, preprocessor):
+        """Test that HTML/XML-like tags are removed."""
+        text = "<div>Hello</div> <span>World</span>"
+        result = preprocessor.clean_text(text)
+        assert result == "divhellodiv spanworldspan"
+
+    def test_clean_text_with_urls(self, preprocessor):
+        """Test handling of URL-like strings."""
+        text = "Check out https://example.com for more info"
+        result = preprocessor.clean_text(text)
+        assert "https" not in result
+        assert "://" not in result
+        assert "check" in result
+        assert "out" in result
+
+    def test_clean_text_with_contractions(self, preprocessor):
+        """Test handling of contractions with apostrophes."""
+        text = "don't can't won't I'm you're"
+        result = preprocessor.clean_text(text)
+        # Apostrophes are removed as special characters
+        assert result == "dont cant wont im youre"
+
+    def test_tokenize_with_leading_trailing_spaces(self, preprocessor):
+        """Test tokenization with extensive leading and trailing spaces."""
+        text = "     hello world     "
+        result = preprocessor.tokenize(text)
+        assert result == ["hello", "world"]
+        assert len(result) == 2
