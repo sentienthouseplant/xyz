@@ -422,3 +422,97 @@ class TestTextPreprocessor:
         result = preprocessor.tokenize(text)
         assert result == ["hello", "world"]
         assert len(result) == 2
+
+    # ==================== ADDITIONAL EDGE CASES (BATCH 2) ====================
+
+    def test_clean_text_with_repeated_characters(self, preprocessor):
+        """Test handling of repeated characters (common in reviews)."""
+        text = "Sooooo gooood!!! Loooove it!!!"
+        result = preprocessor.clean_text(text)
+        assert result == "sooooo gooood loooove it"
+        # Verify repeated letters are preserved but punctuation removed
+        assert "ooooo" in result
+
+    def test_clean_text_with_all_caps_words(self, preprocessor):
+        """Test handling of ALL CAPS emphasis words."""
+        text = "This is ABSOLUTELY AMAZING and WONDERFUL"
+        result = preprocessor.clean_text(text)
+        assert result == "this is absolutely amazing and wonderful"
+        tokens = preprocessor.tokenize(result)
+        assert "absolutely" in tokens
+        assert "amazing" in tokens
+
+    def test_clean_text_with_sql_injection_pattern(self, preprocessor):
+        """Test handling of SQL injection-like patterns (security edge case)."""
+        text = "'; DROP TABLE users; --"
+        result = preprocessor.clean_text(text)
+        # Should remove all special characters
+        assert ";" not in result
+        assert "-" not in result
+        assert result == "drop table users"
+
+    def test_clean_text_with_script_tags(self, preprocessor):
+        """Test handling of script tag-like patterns (XSS prevention)."""
+        text = "<script>alert('xss')</script>"
+        result = preprocessor.clean_text(text)
+        # Tags and parentheses should be removed
+        assert "<" not in result
+        assert ">" not in result
+        assert "script" in result.lower()
+
+    def test_tokenize_with_extremely_long_word(self, preprocessor):
+        """Test tokenization with an extremely long single word."""
+        # Simulate a very long word (e.g., chemical compound name)
+        long_word = "a" * 1000
+        text = f"normal {long_word} word"
+        result = preprocessor.tokenize(text)
+        assert len(result) == 3
+        assert result[1] == long_word
+
+    def test_clean_text_preserves_letter_spacing(self, preprocessor):
+        """Test that spaces between letters are preserved."""
+        text = "a b c d e f"
+        result = preprocessor.clean_text(text)
+        assert result == "a b c d e f"
+        tokens = preprocessor.tokenize(result)
+        assert len(tokens) == 6
+
+    def test_clean_text_with_currency_and_amounts(self, preprocessor):
+        """Test handling of various currency symbols and amounts."""
+        text = "$100 €200 £300 ¥400"
+        result = preprocessor.clean_text(text)
+        # All currency symbols and numbers should be removed
+        assert "$" not in result
+        assert "€" not in result
+        assert "100" not in result
+        assert result.strip() == ""
+
+    def test_tokenize_consistency_after_multiple_operations(self, preprocessor):
+        """Test that tokenizing the same text multiple times gives consistent results."""
+        text = "hello world test"
+        result1 = preprocessor.tokenize(text)
+        result2 = preprocessor.tokenize(text)
+        result3 = preprocessor.tokenize(text)
+        assert result1 == result2 == result3
+
+    def test_clean_text_with_mathematical_expressions(self, preprocessor):
+        """Test handling of mathematical expressions."""
+        text = "2+2=4 and 10-5=5 also 3*3=9"
+        result = preprocessor.clean_text(text)
+        # Numbers and math operators should be removed
+        assert "+" not in result
+        assert "=" not in result
+        assert "2" not in result
+        assert result == "and also"
+
+    def test_clean_text_with_parenthetical_content(self, preprocessor):
+        """Test handling of parenthetical content."""
+        text = "This is great (really great) and awesome [truly awesome]"
+        result = preprocessor.clean_text(text)
+        # Parentheses and brackets should be removed
+        assert "(" not in result
+        assert ")" not in result
+        assert "[" not in result
+        assert "]" not in result
+        assert "great" in result
+        assert "awesome" in result
