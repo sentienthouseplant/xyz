@@ -24,9 +24,37 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "Summarize the work done in this repo in the last week, since ${{ env.WEEK_AGO }}, using Slack BlockKit JSON. Write the Slack BlockKit JSON to a file called MESSAGE.json. Don't just list the commits, make thoughtful, intelligent summaries of the work done."
+          prompt: |
+            Generate a weekly engineering update for team leadership.
+
+            ## Task
+            Summarize all work done in this repo since ${{ env.WEEK_AGO }}.
+
+            ## Process
+            1. Run something like `git log --since="${{ env.WEEK_AGO }}" --no-merges` to get commits
+            2. Use `git diff <oldest-commit>^..HEAD --stat` for a change overview
+            3. Use `git diff <commit>^ <commit>` on specific commits if details are needed
+            4. Group related changes by feature/area
+            5. Synthesize into 3-5 key accomplishments
+
+            ## Output Requirements
+            Write valid Slack BlockKit JSON to MESSAGE.json with this structure:
+            - Header: "Weekly Update: [repo name]"
+            - Section per major accomplishment (use bullet points sparingly)
+            - Keep total length under 500 words
+            - Tone: professional, concise, executive-friendly
+
+            ## Example Output Format
+            ```json
+            {
+              "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": "Weekly Update: repo-name"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "*Authentication Improvements*\nImplemented OAuth2 flow with refresh token support, improving session reliability."}}
+              ]
+            }
+            ```
           claude_args: |
             --allowedTools "Write, Edit"
-            --disallowedTools "Bash(git commit*), Bash(git push*), Bash(git add*), Bash(git branch*), Bash(git checkout*)"
+            --disallowedTools "Bash(git commit*), Bash(git push*), Bash(git add*), Bash(git branch*)"
       - name: Post to Slack
         run: cat MESSAGE.json
