@@ -27,6 +27,8 @@ jobs:
           prompt: |
             Generate a weekly engineering update for team leadership.
 
+            The repo is called ${{ github.repository }}.
+
             ## Task
             Summarize all work done in this repo since ${{ env.WEEK_AGO }}.
 
@@ -40,9 +42,11 @@ jobs:
             ## Output Requirements
             Write valid Slack BlockKit JSON to MESSAGE.json with this structure:
             - Header: "Weekly Update: [repo name]"
-            - Section per major accomplishment (use bullet points sparingly)
-            - Keep total length under 500 words
-            - Tone: professional, concise, executive-friendly
+            - Section per major accomplishment.
+            - Include a "hot files" section at the end to highlight the busiest files in the repo.
+            - Include a section called "This week's :goat:" to shout out the best contributor. Give a short summary of their achievements. 
+            - Keep total length short.
+            - Tone: professional, concise, executive-friendly.
 
             ## Example Output Format
             ```json
