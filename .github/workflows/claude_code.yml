@@ -26,6 +26,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: "Summarize commits in the last week, since ${{ env.WEEK_AGO }}, using Slack BlockKit JSON. Write the Slack BlockKit JSON to a file called MESSAGE.json."
           claude_args: |
+            --allowedTools "Write, Edit"
             --disallowedTools "Bash(git commit*), Bash(git push*), Bash(git add*), Bash(git branch*), Bash(git checkout*)"
       - name: Post to Slack
         run: cat MESSAGE.json
