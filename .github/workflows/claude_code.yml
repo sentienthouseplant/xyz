@@ -24,7 +24,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "Summarize commits in the last week, since ${{ env.WEEK_AGO }}, using Slack BlockKit JSON. Write the Slack BlockKit JSON to a file called MESSAGE.json."
+          prompt: "Summarize the work done in this repo in the last week, since ${{ env.WEEK_AGO }}, using Slack BlockKit JSON. Write the Slack BlockKit JSON to a file called MESSAGE.json. Don't just list the commits, make thoughtful, intelligent summaries of the work done."
           claude_args: |
             --allowedTools "Write, Edit"
             --disallowedTools "Bash(git commit*), Bash(git push*), Bash(git add*), Bash(git branch*), Bash(git checkout*)"
